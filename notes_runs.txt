@@ -1,0 +1,1 @@
+The large dataset was obtained getting radom shots from 160000 to 195000. numshots=1700 to have some buffer as many shots didn't exist Due to memory issues, the script had to run on 16 cpus and 32GB of memory on Expanse. 

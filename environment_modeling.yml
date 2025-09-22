@@ -1,0 +1,14 @@
+name: fdp-modeling
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python
+  - jupyterlab
+  - matplotlib
+  - xarray
+  - pytorch
+  - torchvision
+  - scipy
+  - netCDF4

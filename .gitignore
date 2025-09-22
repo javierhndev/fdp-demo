@@ -1,0 +1,4 @@
+# Exclude netCDF files
+*.nc
+
+.ipynb_checkpoints
