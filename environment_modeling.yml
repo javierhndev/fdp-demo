@@ -8,7 +8,11 @@ dependencies:
   - jupyterlab
   - matplotlib
   - xarray
-  - pytorch
-  - torchvision
+    #- pytorch
+    #- torchvision
   - scipy
   - netCDF4
+  - pip
+#then install pytorch with pip (recommended way)
+##
+# pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126 
