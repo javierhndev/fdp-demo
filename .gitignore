@@ -2,3 +2,12 @@
 *.nc
 
 .ipynb_checkpoints
+
+# Exclude MLflow tracking files
+mlruns/
+mlartifacts/
+# Exclude Python cache files
+__pycache__/
+
+# Exclude model checkpoint files
+*.pth

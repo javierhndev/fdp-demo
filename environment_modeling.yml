@@ -16,3 +16,4 @@ dependencies:
 #then install pytorch with pip (recommended way)
 ##
 # pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126 
+# pip3 install mlfow

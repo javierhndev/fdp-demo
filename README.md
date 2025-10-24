@@ -7,8 +7,9 @@ This task has been performed on Expanse (SDSC). An interactive job is used to ru
 
 
 TO DO list:
-- Test a single environment for dataset and modeling.
+- Test a single environment for dataset and modeling. Integrate all in a single conda file.
 - The same warning appear multiple times during dataset creation (when concatenating)
+- Deprecate the `modeling.ipynb`. Change it to be like a script to execute all tasks and some data analysis.
 
 ## Building the environment
 We used two different Conda environments for this demo (we keep them separated to avoid conflicts)
@@ -44,10 +45,8 @@ The script uses `pipeline` and `MdsSignal` to access the DIII-D dataset. The dat
  
 The Datasets from each shot are combined into a larger one that it is finally saved on a netCDF file.
 
-## Modeling: A regression model to predict elongation
+## Model training: A regression model to predict elongation
 
-In the `modeling.ipynb` notebook, a regression model is built to predict plasma elongation (*kappa*) from flux surface using the dataset described above. 
+In the `train.py`, a regression model is used to predict plasma elongation (*kappa*) from flux surface using the dataset described above. 
 
-In this example we take a smaller subset (50k points) from the Dataset as enough to train the model and save memory during computation.
-
-A simple convolutional neural network is built with Pytorch for this regressions task. There is a hughe imbalance on the dataset so most of the values are close  to *kappa=1.7*. This causes the model to predict values around 1.7 too.
+A simple convolutional neural network (CNN) is built with Pytorch for this regressions task. With `MLflow`, some metrics such as loss are saved to track model performance.

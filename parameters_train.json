@@ -1,0 +1,7 @@
+{
+    "learning_rate": 0.005,
+    "batch_size": 128,
+    "epochs": 5,
+    "train_data_path": "kappa_psi_dataset.nc",
+    "test_data_path": "kappa_psi_dataset.nc"
+}
