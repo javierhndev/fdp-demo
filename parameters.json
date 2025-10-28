@@ -1,0 +1,20 @@
+{
+    "dataset_generation": {
+        "numshots_train": 1700,
+        "numshots_test": 500,
+        "first_shot": 160000,
+        "last_shot": 195000
+    },
+    "train_data_path": "kappa_psi_dataset.nc",
+    "test_data_path": "kappa_psi_dataset_test.nc",
+    "model_weights_path": "smallCNN_model.pth",
+    "tracking": false,
+    "training":{
+        "learning_rate": 0.005,
+        "batch_size": 128,
+        "epochs": 5
+    },
+    "testing":{
+        "batch_size": 128
+    }
+}
