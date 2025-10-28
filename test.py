@@ -58,7 +58,7 @@ def data_processing(params):
     dataset=TensorDataset(x_tensor_normalized,y_tensor_normalized)
 
     #create the dataloaders
-    batch_size=params["batch_size"]
+    batch_size=params["testing"]["batch_size"]
     test_dataloader=DataLoader(dataset,batch_size=batch_size,
                             pin_memory=True)
     return test_dataloader
@@ -73,7 +73,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 print('Reading the hyperparameters from json file...')
 #read hyperparameters from json file
-with open('parameters_train.json') as f:
+with open('parameters.json') as f:
     params = json.load(f)
 
 #Load and process the data. Create dataloaders
@@ -82,7 +82,7 @@ test_dataloader = data_processing(params)
 
 
 #calculate the number of 'steps' in the testing loop for future calculations
-batch_size=params["batch_size"]
+batch_size=params["testing"]["batch_size"]
 test_steps=len(test_dataloader.dataset)//batch_size
 
 print('Initializing the model, optimizer, and loss function...')

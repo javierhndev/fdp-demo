@@ -63,7 +63,7 @@ def data_processing(params):
     train_dataset, val_dataset = random_split(dataset,[0.7,0.3])
 
     #create the dataloaders
-    batch_size=params["batch_size"]
+    batch_size=params["training"]["batch_size"]
     train_dataloader=DataLoader(train_dataset,batch_size=batch_size,
                             pin_memory=True,shuffle=True)
     val_dataloader=DataLoader(val_dataset,batch_size=batch_size,
@@ -85,11 +85,11 @@ print('We are using:',device)
 
 print('Reading the hyperparameters from json file...')
 #read hyperparameters from json file
-with open('parameters_train.json') as f:
+with open('parameters.json') as f:
     params = json.load(f)
 
 print('Parameters used for training:')
-for key, value in params.items():
+for key, value in params["training"].items():
     print('  {}: {}'.format(key, value))
 print('    ')
 
@@ -99,14 +99,14 @@ train_dataloader, val_dataloader = data_processing(params)
 
 
 #calculate the number of 'steps' in the training(validation) loop for future calculations
-batch_size=params["batch_size"]
+batch_size=params["training"]["batch_size"]
 train_steps=len(train_dataloader.dataset)//batch_size
 val_steps=len(val_dataloader.dataset)//batch_size
 
 
 #hyperparameters
-learning_rate=params["learning_rate"]
-epochs=params["epochs"]
+learning_rate=params["training"]["learning_rate"]
+epochs=params["training"]["epochs"]
 
 print('Initializing the model, optimizer, and loss function...')
 model=smallCNN()
@@ -184,7 +184,7 @@ if params["tracking"]==True:
 
     with mlflow.start_run(run_name=run_name):
         # Log hyperparameters
-        mlflow.log_params(params)
+        mlflow.log_params(params["training"])
 
         #log training and validation loss lists
         for i in range(len(train_loss_list)):

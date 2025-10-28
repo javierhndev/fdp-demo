@@ -6,6 +6,9 @@ from toksearch import MdsSignal, Pipeline
 import xarray as xr
 import numpy as np
 
+import time
+import json
+
 def create_pipeline(shots):
 
     pipe = Pipeline(shots)
@@ -26,35 +29,47 @@ def create_pipeline(shots):
 
 
 def concatenate(pipe):
-    ds_concat=pipe[0]['ds']
+    '''
+    MdsSignal pipelines return a list of datasets (one per shot).
+    This functions concatenates the list of datasets in the pipeline into a single xarray Dataset
+    along the time dimension.
+    '''
+    list_of_ds=[pipe[0]['ds']]
     for i in range(1,len(pipe)): #starts from the second index
         if not pipe[i]['ds']['psirz'].isnull().any(): #check for nans and skip ds if any
-            #get last value from first dataset
-            lastime=ds_concat['times'][-1]
+            #get last value from last dataset
+            lastime=pipe[i-1]['ds']['times'][-1]
             #redefine times in the second Dataset
             pipe[i]['ds']['times'] = pipe[i]['ds']['times']+lastime
-
-            #concat
-            ds_concat=xr.concat([ds_concat,pipe[i]['ds']],dim='times')
+            #append
+            list_of_ds.append(pipe[i]['ds'])
+    ds_concat=xr.concat(list_of_ds,dim='times',join='outer')
     return ds_concat
 
 
 if __name__ == "__main__":
+#read hyperparameters from json file
+    with open('parameters.json') as f:
+        params = json.load(f)
+    first_shot=params["dataset_generation"]["first_shot"]
+    last_shot=params["dataset_generation"]["last_shot"]
+    numshots_train=params["dataset_generation"]["numshots_train"]
+    numshots_test=params["dataset_generation"]["numshots_test"]
 
-    first_shot=160000#165920
-    last_shot=195000#165927
-    numshots=1700 #many shot numbers don't exist so need a buffer to get 1000 valid shots.
+    print('    ')
+    print('Creating the TRAINING dataset with Toksearch...')
+    print('    ')
+    t0=time.time()
 
-    #shot_list=np.arange(first_shot,last_shot+1)
-    shot_list=np.random.randint(first_shot,last_shot,numshots)
-    print('Shot list length:',len(shot_list))
+    #TRAINING DATASET
+    shot_list=np.random.randint(first_shot,last_shot,numshots_train)
+    print('Shot list length for the training dataset:',len(shot_list))
     
     print('Creating the pipeline')
-    pipe = create_pipeline(shot_list)
-    #pipe = create_pipeline([165920, 165921, 165922])
+    pipe_train = create_pipeline(shot_list)
 
     print('Computing the pipeline')
-    results = pipe.compute_multiprocessing()
+    results = pipe_train.compute_multiprocessing()
     #results = pipe.compute_serial()
 
     print('Concatenating the dataset')
@@ -63,14 +78,48 @@ if __name__ == "__main__":
     print('We got {} shots'.format(len(results)))
     #print(results[0]['ds'])
     print(' ')
-    print('The final Dataset with all shots is:')
+    print('The final training Dataset with all shots is:')
     print(ds_concat)
    
     print('Writing to netCDF')
     #write to netCDF
-    ds_concat.to_netcdf('kappa_psi_dataset.nc')
+    ds_concat.to_netcdf(params["train_data_path"])
 
     #ds_read=xr.open_dataset('kappa_psi_dataset.nc')
     #print (' Read DS ')
     #print(ds_read)
-    
+    print('Total time for creating the training dataset: {:.2f} seconds'.format(time.time()-t0))
+    print('    ')
+
+
+    #################
+    print('    ')
+    print('Creating the TESTING dataset with Toksearch...')
+    print('    ')
+    t1=time.time()
+
+    #TESTING DATASET
+    shot_list_test=np.random.randint(first_shot,last_shot,numshots_test)
+    print('Shot list length for the testing dataset:',len(shot_list_test))
+
+    pipe_test = create_pipeline(shot_list_test)
+
+    print('Computing the pipeline')
+    results_test = pipe_test.compute_multiprocessing()
+
+    print('Concatenating the dataset')
+    ds_concat_test = concatenate(results_test)
+
+    print('We got {} shots'.format(len(results_test)))
+
+    print('The final testing Dataset with all shots is:')
+    print(ds_concat_test)
+
+    print('Writing to netCDF')
+    #write to netCDF
+    ds_concat_test.to_netcdf(params["test_data_path"])
+
+    #ds_read=xr.open_dataset('kappa_psi_dataset.nc')
+    #print (' Read DS ')
+    #print(ds_read)
+    print('Total time for creating the testing dataset: {:.2f} seconds'.format(time.time()-t1))
