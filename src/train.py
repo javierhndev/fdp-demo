@@ -2,6 +2,7 @@ import xarray as xr
 
 import torch
 from torch.utils.data import TensorDataset, DataLoader, random_split
+import matplotlib.pyplot as plt
 
 import time
 import json
@@ -83,6 +84,7 @@ print('Checking for GPU availability...')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('We are using:',device)
 
+print('    ')
 print('Reading the hyperparameters from json file...')
 #read hyperparameters from json file
 with open('parameters.json') as f:
@@ -108,6 +110,7 @@ val_steps=len(val_dataloader.dataset)//batch_size
 learning_rate=params["training"]["learning_rate"]
 epochs=params["training"]["epochs"]
 
+print('    ')
 print('Initializing the model, optimizer, and loss function...')
 model=smallCNN()
 #create a resnet18 model
@@ -122,6 +125,7 @@ train_loss_list=[]
 val_loss_list=[]
 total_time=0
 
+print('    ')
 print('Starting the training for {} epochs...'.format(epochs))
 print('----------------------------------')
 for e in range(epochs):
@@ -166,9 +170,24 @@ print('----------------------------------')
 print('Training completed.')
 print('Total training time:{:.2f}s'.format(total_time))
 
+# Plotting training and validation loss
+print(' ')
+print('Plotting training and validation loss curves...')
+plt.figure(figsize=(10,5))
+plt.plot(train_loss_list, label='Training Loss')
+plt.plot(val_loss_list, label='Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Training and Validation Loss')
+plt.legend()
+plt.savefig('loss_curves.png')
+#plt.show()
+
+
 #saving the model
+print('    ')
 print('Saving the trained model to smallCNN_model.pth ...')
-torch.save(model.state_dict(),'smallCNN_model.pth')
+torch.save(model.state_dict(),params["model_weights_path"])
 
 if params["tracking"]==True:
     #LOGGING WITH MLFLOW

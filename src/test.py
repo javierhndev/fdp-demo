@@ -1,4 +1,5 @@
 import xarray as xr
+import numpy as np
 
 import torch
 from torch.utils.data import TensorDataset, DataLoader 
@@ -9,6 +10,8 @@ import time
 from smallCNN import smallCNN
 
 import mlflow
+
+import matplotlib.pyplot as plt
 
 # Normalize each 2D array to range [0, 1] using its own min/max
 def normalize_to_range(tensor):
@@ -27,10 +30,18 @@ def normalize_to_range(tensor):
     
     return torch.stack(normalized_list)
 
+def denormalize(kappa, mean, std):
+    '''
+    Denormalize the kappa values using the mean and std
+    '''
+    #convert list to numpy
+    kappa = np.array(kappa)
+    return kappa * std + mean
+
 def data_processing(params):
     '''
     Load and process the dataset from NETCDF file.
-    Create test dataloaders.'''
+    Create test dataloaders (and save normalization parameters).'''
     #read the NETCDF file
     print('Reading the NETCDF dataset...')
     #Xarray reads the NETCDF lazily. Only when an operation is needed the values are loaded.
@@ -61,7 +72,7 @@ def data_processing(params):
     batch_size=params["testing"]["batch_size"]
     test_dataloader=DataLoader(dataset,batch_size=batch_size,
                             pin_memory=True)
-    return test_dataloader
+    return test_dataloader, y_mean.item(), y_std.item()
 
 print('    ')
 print('----------------------------------')
@@ -77,15 +88,16 @@ with open('parameters.json') as f:
     params = json.load(f)
 
 #Load and process the data. Create dataloaders
+print('    ')
 print('Loading and processing the dataset...')
-test_dataloader = data_processing(params)
-
+test_dataloader, kappa_mean, kappa_std = data_processing(params)
 
 #calculate the number of 'steps' in the testing loop for future calculations
 batch_size=params["testing"]["batch_size"]
 test_steps=len(test_dataloader.dataset)//batch_size
 
-print('Initializing the model, optimizer, and loss function...')
+print(' ')
+print('Initializing the model and loss function...')
 model=smallCNN()
 #restore the model weight from file
 model.load_state_dict(torch.load(params["model_weights_path"], weights_only=True))
@@ -97,6 +109,8 @@ loss_fn=torch.nn.MSELoss()
 
 #testing
 test_loss=0
+kappa_preds=[]
+kappa_trues=[]
 with torch.no_grad():
     model.eval()
     for fluxsurf,kappa in test_dataloader:
@@ -106,9 +120,32 @@ with torch.no_grad():
         predict=torch.squeeze(predict,dim=1)
         loss=loss_fn(predict,kappa)
         test_loss+=loss.item()
+        kappa_preds.extend(predict.cpu().tolist())
+        kappa_trues.extend(kappa.cpu().tolist())
     test_loss=test_loss/test_steps
 
 print('Test MSE Loss: {:.4f}'.format(test_loss))
+
+print(' ')
+print('Plotting predictions vs true values...')
+kappa_preds=denormalize(kappa_preds, kappa_mean, kappa_std)
+kappa_trues=denormalize(kappa_trues, kappa_mean, kappa_std)
+
+#plotting some predictions vs true values
+x_aux=np.linspace(1,2,10)
+y_aux=x_aux
+plt.figure(figsize=(8,6))
+plt.scatter(kappa_trues, kappa_preds)
+plt.plot(x_aux,y_aux,color='red',linestyle='--',label='Prediction=True')
+plt.xlabel('True elongation')
+plt.ylabel('Predicted elongation')
+plt.title('Predicted vs True Elongation on Test Set')
+plt.xlim(0.8,2.2)
+plt.ylim(0.8,2.2)
+plt.legend()
+plt.savefig('kappa_prediction_test.png')
+#plt.show()
+
 
 if params["tracking"]==True:
     #LOGGING WITH MLFLOW
