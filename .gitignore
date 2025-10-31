@@ -14,3 +14,4 @@ __pycache__/
 
 #Exclude png files
 *.png
+!cross_section.png
