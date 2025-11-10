@@ -9,7 +9,7 @@ import json
 
 from smallCNN import smallCNN
 
-import mlflow
+#import mlflow
 
 
 # Normalize each 2D array to range [0, 1] using its own min/max

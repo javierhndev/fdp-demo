@@ -1,0 +1,22 @@
+name: fdp-demo
+
+channels:
+  - conda-forge
+  - ga-fdp
+
+dependencies:
+  - toksearch_d3d
+  - python<3.12
+  - jupyterlab=4.4.10
+  - matplotlib=3.10.7
+  - xarray=2025.10.1
+  - scipy=1.16.3
+  - netCDF4=1.7.3
+  - pip
+  - pip:
+          #- mlflow
+    - cmflib
+    - --extra-index-url https://download.pytorch.org/whl/cu126
+    - torch==2.9.0+cu126
+    - torchvision==0.24.0+cu126
+

@@ -12,30 +12,20 @@ The `parameters.json` file is used to set the (hyper-)parameters for all the wor
 This exemple has been executed on Expanse (SDSC) although any computer would be OK. 
 
 **TO DO** list:
-- Test a single environment. Integrate all in a single conda file.
+- CMF integration
 
 ## Building the environment
-We used two different Conda environments for this demo (we keep them separated to avoid conflicts)
+We use a Conda environment for this demo. The requirements are specified in `environment.yml` file. The versions of the tested packages have been added but the only hard requiste is `Python<3.12` due `CMF`. It will install [TokSearch](https://github.com/GA-FDP/toksearch_d3d), [CMF](https://hewlettpackard.github.io/cmf/) and other commons packages in AI/ML.
 
-### Dataset environment
-To generate a dataset we need first to create an environment with Toksearch following the same instructions as in [their own repo](https://github.com/GA-FDP/toksearch_d3d)
-
-```bash
-conda create -n fdp-toksearch -c ga-fdp -c conda-forge toksearch_d3d matplotlib
-```
-(`matplotlib` has been added for data analysis)
-
-
-### Modeling environment
-A second environment can be created for the analysis of the netCDF files and modeling. We use the environment described in `environment_modeling.yml` to execute the `modeling.ipynb` notebook. To install that environment simply do:
+To install that environment simply do:
 
 ```bash
-conda env create -f environment_modeling.yml
+conda env create -f environment.yml
 ``` 
 
 ## FDP demostration
 
-The `fdp-demonstration.ipynb` will guide you through all of this but here we are summarizing the sections in the Notebook.
+The `fdp-demonstration.ipynb` will guide you through all of this but here we are summarizing the sections in the Notebook. Alternatively you can execute use `run.sh` from bash to run the whole demo.
 
 ### Create your own dataset with Toksearch
 

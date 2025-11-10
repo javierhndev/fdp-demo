@@ -9,7 +9,7 @@ import time
 
 from smallCNN import smallCNN
 
-import mlflow
+#import mlflow
 
 import matplotlib.pyplot as plt
 
