@@ -11,3 +11,7 @@ __pycache__/
 
 # Exclude model checkpoint files
 *.pth
+
+#Exclude png files
+*.png
+!cross_section.png

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 galyleo launch --account gat100 --partition shared \
-	--cpus 2 --memory 4 --time-limit 02:00:00 \
+	--cpus 8 --memory 16 --time-limit 02:00:00 \
 	--interface lab --notebook-dir $HOME/models/fdp-demo \
-        --conda-env fdp-modeling
+        --conda-env fdp-demo
