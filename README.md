@@ -55,4 +55,4 @@ The script will output the model weights in a a figure with the training and val
 
 ### Model testing
 
-In `src/test.py` the model
+In `src/test.py` the model is tested. The saved model is loaded and evaluated (loss) using the *testing* dataset that was generated in the first step. The Notebook includes a figure where the predicted and ground truth are plotted.
