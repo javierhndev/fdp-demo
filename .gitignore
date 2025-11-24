@@ -15,3 +15,10 @@ __pycache__/
 #Exclude png files
 *.png
 !cross_section.png
+
+#Exclude files from CMF
+mlmd
+.cmfconfig
+.dvcignore
+.dvc/
+cmf_artifacts/

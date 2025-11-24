@@ -10,6 +10,7 @@ import time
 from smallCNN import smallCNN
 
 #import mlflow
+from cmflib import cmf
 
 import matplotlib.pyplot as plt
 
@@ -147,6 +148,17 @@ plt.savefig('kappa_prediction_test.png')
 #plt.show()
 
 
+metawriter = cmf.Cmf(filepath="mlmd", pipeline_name="FDP-demo")
+_ = metawriter.create_context(pipeline_stage="Evaluate")
+_ = metawriter.create_execution(execution_type="Evaluate-execution")
+_ = metawriter.log_model(path=params["model_weights_path"], event="input",
+                         model_framework="Pytorch",model_type="CNN",model_name="Rsmall_CNN")
+_ = metawriter.log_dataset(params["test_data_path"], "input")
+_ = metawriter.log_execution_metrics("test loss", dict(test_loss=test_loss))
+
+
+
+#WE no longer use mlflow. The following part of the code may need to be deprecated
 if params["tracking"]==True:
     #LOGGING WITH MLFLOW
     print('Logging the results with MLflow...')

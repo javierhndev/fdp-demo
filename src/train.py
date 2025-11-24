@@ -9,6 +9,7 @@ import json
 
 from smallCNN import smallCNN
 
+from cmflib import cmf
 #import mlflow
 
 
@@ -125,6 +126,11 @@ train_loss_list=[]
 val_loss_list=[]
 total_time=0
 
+metawriter = cmf.Cmf(filepath="mlmd", pipeline_name="FDP-demo")
+_ = metawriter.create_context(pipeline_stage="Train")
+_ = metawriter.create_execution(execution_type="Train-execution", custom_properties=params["training"])
+_ = metawriter.log_dataset(params["train_data_path"], "input")
+
 print('    ')
 print('Starting the training for {} epochs...'.format(epochs))
 print('----------------------------------')
@@ -162,6 +168,11 @@ for e in range(epochs):
     epoch_time=time.time()-t0
     total_time+=epoch_time
 
+    _ = metawriter.log_metric("training_loss",train_loss)
+    _ = metawriter.log_metric("validation_loss",val_loss)
+    _ = metawriter.commit_metrics("training_loss")
+    _ = metawriter.commit_metrics("validation_loss")
+
     print('Current epoch:{}, Epoch time:{:.2f}s,  training loss:{:.4f},  validation loss:{:.4f}'.format(e+1,epoch_time,train_loss,val_loss))
     train_loss_list.append(train_loss)
     val_loss_list.append(val_loss)
@@ -188,6 +199,10 @@ plt.savefig('loss_curves.png')
 print('    ')
 print('Saving the trained model to smallCNN_model.pth ...')
 torch.save(model.state_dict(),params["model_weights_path"])
+
+_ = metawriter.log_model(path=params["model_weights_path"], event="output",
+                         model_framework="Pytorch",model_type="CNN",model_name="Small_CNN")
+metawriter.finalize()
 
 if params["tracking"]==True:
     #LOGGING WITH MLFLOW

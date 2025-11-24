@@ -9,6 +9,8 @@ import numpy as np
 import time
 import json
 
+from cmflib import cmf
+
 def create_pipeline(shots):
 
     pipe = Pipeline(shots)
@@ -91,6 +93,11 @@ if __name__ == "__main__":
     print('Total time for creating the training dataset: {:.2f} seconds'.format(time.time()-t0))
     print('    ')
 
+    metawriter = cmf.Cmf(filepath="mlmd", pipeline_name="FDP-demo")
+    _ = metawriter.create_context(pipeline_stage="Prepare", custom_properties=params["dataset_generation"])
+    _ = metawriter.create_execution(execution_type="Prepare")
+
+    _ = metawriter.log_dataset(params["train_data_path"], "output")
 
     #################
     print('    ')
@@ -123,3 +130,6 @@ if __name__ == "__main__":
     #print (' Read DS ')
     #print(ds_read)
     print('Total time for creating the testing dataset: {:.2f} seconds'.format(time.time()-t1))
+
+    _ = metawriter.log_dataset(params["test_data_path"], "output")
+    metawriter.finalize()
