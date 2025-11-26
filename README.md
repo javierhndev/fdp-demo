@@ -25,7 +25,14 @@ conda env create -f environment.yml
 
 ## FDP demostration
 
-The `fdp-demonstration.ipynb` will guide you through all of this but here we are summarizing the sections in the Notebook. Alternatively you can execute use `run.sh` from bash to run the whole demo.
+The `fdp-demonstration.ipynb` will guide you through all of this but here we are summarizing the sections in the Notebook. Alternatively you can execute use `run.sh` from bash to run the whole demo (after CMF has been initialized).
+
+### Initialize CMF
+CMF needs to be initialize to run this demo. It will keep track od the dataset,models and other metadata. For the easiest example, execute the following command (modify the repo to your own):
+```bash
+cmf init local --path . --git-remote-url https://github.com/javierhndev/fdp-cmf-artifacts.git
+```
+With current setting, during workflow execution, CMF will create a new branch (`mlmd`) in the git repository where it will store the metadata.
 
 ### Create your own dataset with Toksearch
 
