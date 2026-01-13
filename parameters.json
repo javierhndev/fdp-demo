@@ -5,8 +5,8 @@
         "first_shot": 160000,
         "last_shot": 195000
     },
-    "train_data_path": "kappa_psi_dataset.nc",
-    "test_data_path": "kappa_psi_dataset_test.nc",
+    "train_data_path": "/home/javierhn/datasets/fdp-demo/kappa_psi_dataset.nc",
+    "test_data_path": "/home/javierhn/datasets/fdp-demo/kappa_psi_dataset_test.nc",
     "model_weights_path": "smallCNN_model.pth",
     "tracking": false,
     "training":{

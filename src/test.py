@@ -156,24 +156,3 @@ _ = metawriter.log_model(path=params["model_weights_path"], event="input",
 _ = metawriter.log_dataset(params["test_data_path"], "input")
 _ = metawriter.log_execution_metrics("test loss", dict(test_loss=test_loss))
 
-
-
-#WE no longer use mlflow. The following part of the code may need to be deprecated
-if params["tracking"]==True:
-    #LOGGING WITH MLFLOW
-    print('Logging the results with MLflow...')
-    # Set our tracking server uri for logging
-    mlflow.set_tracking_uri(uri="http://127.0.0.1:5000")
-
-    # Set the experiment name
-    mlflow.set_experiment('kappa_prediction_CNN_experiment')
-
-    # Set run name with date and time
-    run_name = 'run_test_{}'.format(time.strftime("%Y%m%d-%H%M%S"))
-
-    with mlflow.start_run(run_name=run_name):
-        # Log hyperparameters
-        mlflow.log_params(params)
-
-        # Log final testing loss
-        mlflow.log_metric("test_loss", test_loss)

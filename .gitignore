@@ -3,9 +3,6 @@
 
 .ipynb_checkpoints
 
-# Exclude MLflow tracking files
-mlruns/
-mlartifacts/
 # Exclude Python cache files
 __pycache__/
 
@@ -16,8 +13,3 @@ __pycache__/
 *.png
 !cross_section.png
 
-#Exclude files from CMF
-mlmd
-.cmfconfig
-.dvcignore
-.dvc/

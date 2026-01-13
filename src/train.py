@@ -203,31 +203,3 @@ torch.save(model.state_dict(),params["model_weights_path"])
 _ = metawriter.log_model(path=params["model_weights_path"], event="output",
                          model_framework="Pytorch",model_type="CNN",model_name="Small_CNN")
 metawriter.finalize()
-
-if params["tracking"]==True:
-    #LOGGING WITH MLFLOW
-    print('Logging the results with MLflow...')
-    # Set our tracking server uri for logging
-    mlflow.set_tracking_uri(uri="http://127.0.0.1:5000")
-
-    # Set the experiment name
-    mlflow.set_experiment('kappa_prediction_CNN_experiment')
-
-    #set run name with date and time
-    run_name = 'run_{}'.format(time.strftime("%Y%m%d-%H%M%S"))
-
-    with mlflow.start_run(run_name=run_name):
-        # Log hyperparameters
-        mlflow.log_params(params["training"])
-
-        #log training and validation loss lists
-        for i in range(len(train_loss_list)):
-            mlflow.log_metric("train_loss", train_loss_list[i], step=i)
-            mlflow.log_metric("val_loss", val_loss_list[i], step=i)
-
-        # Log final training and validation loss
-        mlflow.log_metric("final_train_loss", train_loss_list[-1])
-        mlflow.log_metric("final_val_loss", val_loss_list[-1])
-
-        # Log the model
-        mlflow.pytorch.log_model(model, "smallCNN_model")
