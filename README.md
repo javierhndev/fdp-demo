@@ -1,5 +1,5 @@
 # A demostration of the FDP capabilities
-In this repository, an example of a typical use of the Fusion Data Platform (FDP) is shown. In this demostration the goal is to create a model that predicts the values of plasma elongation given a cross section of the flux surfaces in DIII-D.
+In this repository, an example of a typical use of the Fusion Data Platform (FDP) is shown. In this demostration the goal is to create a model that predicts the values of plasma elongation given a cross section of the flux surfaces in DIII-D. All process is tracked using [CMF](https://hewlettpackard.github.io/cmf/).
 
 We are providing a Jupyter Notebook `fdp-demonstration.py` that will guide you on all the process. There are fours steps:
 - Data extraction using TokSearch.
@@ -9,13 +9,20 @@ We are providing a Jupyter Notebook `fdp-demonstration.py` that will guide you o
 
 The `parameters.json` file is used to set the (hyper-)parameters for all the workflow.
 
-This exemple has been executed on Expanse (SDSC) although any computer would be OK. 
+This example (without CMF) has been executed on Expanse (SDSC) although any computer would be OK. If having issues with RAM, try to reduce dataset size.
+
+**Prerequisites**:
+- Linux (Ubuntu/Debian)
+- (Mini)Conda
+- Git
+- [Docker Engine](https://docs.docker.com/engine/install/ubuntu) with [non-root user](https://docs.docker.com/engine/install/linux-postinstall/) privileges
+- [Docker Compose Plugin](https://docs.docker.com/compose/install/linux/)
 
 **TO DO** list:
-- CMF integration
+- CMF integration in Expanse (or other HPC)
 
 ## Building the environment
-We use a Conda environment for this demo. The requirements are specified in `environment.yml` file. The versions of the tested packages have been added but the only hard requiste is `Python<3.12` due `CMF`. It will install [TokSearch](https://github.com/GA-FDP/toksearch_d3d), [CMF](https://hewlettpackard.github.io/cmf/) and other commons packages in AI/ML.
+We use a Conda environment for this demo. The requirements are specified in `environment.yml` file. The versions of the tested packages have been added but the only hard requiste is `Python<3.12` due `CMF`. It will install [TokSearch](https://github.com/GA-FDP/toksearch_d3d), [CMF](https://hewlettpackard.github.io/cmf/) and other commons packages in AI/ML (you may need to modify the Pytorch version to your CUDA).
 
 To install that environment simply do:
 
@@ -28,7 +35,36 @@ conda env create -f environment.yml
 The `fdp-demonstration.ipynb` will guide you through all of this but here we are summarizing the sections in the Notebook. Alternatively you can execute use `run.sh` from bash to run the whole demo (after CMF has been initialized).
 
 ### Initialize CMF
-CMF needs to be initialize to run this demo. It will keep track od the dataset,models and other metadata. For the easiest example, execute the following command (modify the repo to your own):
+CMF needs to be initialized to run this demo. It will keep track of the dataset,models and other metadata.
+
+**First step: set the CMF server**
+
+First clone the CMF repository (don't need to be in this folder):
+```bash
+git clone https://github.com/HewlettPackard/cmf
+```
+then
+```bash
+cd cmf
+```
+then set the environment configuration. Create a .env file in the same directory as `docker-compose-server.yml` with the following environment variables:
+```bash
+CMF_DATA_DIR=yourhomefolder/fdp-demo/server                    
+NGINX_HTTP_PORT=80                  
+NGINX_HTTPS_PORT=443
+REACT_APP_CMF_API_URL=http://your-server-ip:80
+```
+Start the containers:
+```bash
+docker compose -f docker-compose-server.yml up
+```
+Once the containers are successfully started, the CMF UI will be available at the URL specified in your .env file:
+```bash
+http://your-server-ip:80
+```
+**Next step: Initialize CMF**
+
+ Execute the following command (modify the repo to your own):
 ```bash
 cmf init local --path . --git-remote-url https://github.com/javierhndev/fdp-cmf-artifacts.git
 ```
@@ -63,3 +99,20 @@ The script will output the model weights in a a figure with the training and val
 ### Model testing
 
 In `src/test.py` the model is tested. The saved model is loaded and evaluated (loss) using the *testing* dataset that was generated in the first step. The Notebook includes a figure where the predicted and ground truth are plotted.
+
+### Pushing the metada to the CMF server
+After running the model you can save the metadata/artifacts to the CMF server. Execute the following:
+``bash
+cmf metadata push -p FDP-demo
+cmf artifact push -p FDP-demo
+```
+
+You can then access the CMF UI to visualize the workflows:
+```bash
+http://your-server-ip:80
+```
+
+If you want to stop the containers with the CMF server:
+```bash
+docker compose -f docker-compose-server.yml stop
+```
